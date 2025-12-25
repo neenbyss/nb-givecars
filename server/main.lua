@@ -65,7 +65,9 @@ RegisterNetEvent('nb-givecars:server:saveVehicle', function(data)
 end)
 
 function GiveKeys(source, plate, model)
-    if Config.KeySystem == 'qb-vehiclekeys' then
+    if Config.KeySystem == 'brutal_keys' then
+        TriggerEvent('brutal_keys:server:addVehicleKey', source, plate, plate)
+    elseif Config.KeySystem == 'qb-vehiclekeys' then
         TriggerClientEvent('qb-vehiclekeys:client:AddKeys', source, plate)
     elseif Config.KeySystem == 'qs-vehiclekeys' then
         exports['qs-vehiclekeys']:GiveKeys(plate, model)

@@ -2,7 +2,8 @@ Config = {}
 
 Config.Framework = 'auto'
 
-Config.KeySystem = 'none'
+-- Sistema de llaves: 'brutal_keys', 'qb-vehiclekeys', 'qs-vehiclekeys', 'cd_garage', 'wasabi_carlock', 'jaksam', 'custom', 'none'
+Config.KeySystem = 'brutal_keys'
 
 Config.PermissionGroup = 'group.admin'
 
