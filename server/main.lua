@@ -2,8 +2,10 @@ local Framework = require 'server.framework'
 
 lib.addCommand(Config.CommandName, {
     help = 'Abrir menu de entregar vehiculos',
-    restricted = Config.PermissionGroup
 }, function(source, args)
+    if not Framework.IsAdmin(source) then
+        return TriggerClientEvent('ox_lib:notify', source, {type = 'error', description = 'No tienes permisos para usar este comando.'})
+    end
     TriggerClientEvent('nb-givecars:client:openMenu', source)
 end)
 
