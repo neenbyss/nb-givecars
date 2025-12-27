@@ -1,10 +1,10 @@
 # 🚗 nb-givecars
 
-> **Un script simple y moderno para entregar vehículos a jugadores en FiveM, utilizando la potencia de ox_lib.**
+> **Un script simple y moderno para entregar y gestionar vehículos de jugadores en FiveM, utilizando la potencia de ox_lib.**
 
 ![FiveM](https://img.shields.io/badge/FiveM-Ready-orange) ![Lua](https://img.shields.io/badge/Lua-5.4-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
-`nb-givecars` permite a los administradores entregar vehículos propios a cualquier jugador (o a sí mismos) a través de un menú limpio e intuitivo. Soporta múltiples frameworks y sistemas de llaves de forma nativa.
+`nb-givecars` permite a los administradores entregar vehículos propios a cualquier jugador y eliminarlos de la base de datos de forma segura, todo a través de menús intuitivos. Soporta múltiples frameworks y sistemas de llaves de forma nativa.
 
 ## ✨ Características
 
@@ -16,9 +16,10 @@
   - `wasabi_carlock`
   - `cd_garage`
   - `jaksam`
-- 🖥️ **Interfaz Moderna**: Utiliza `ox_lib` para un menú Input Dialog limpio y rápido.
-- 💾 **Persistencia**: Guarda correctamente las propiedades del vehículo (tuning, estado) en la base de datos (`owned_vehicles` o `player_vehicles`).
-- 🛡️ **Seguro**: Verificación de permisos de administrador en el lado del servidor.
+- 🖥️ **Interfaz Moderna**: Utiliza `ox_lib` para menús Input Dialog limpios y rápidos.
+- �️ **Gestión Completa**: No solo permite dar coches, sino también eliminarlos de la base de datos por matrícula.
+- �💾 **Persistencia**: Guarda correctamente las propiedades del vehículo (tuning, estado) en la base de datos (`owned_vehicles` o `player_vehicles`).
+- 🛡️ **Seguridad Flexible**: Soporta tanto los rangos de administrador del framework (admin/god) como permisos **ACE** configurables.
 
 ## 📦 Requisitos
 
@@ -46,21 +47,31 @@ Config.Framework = 'auto'
 -- Opciones: 'brutal_keys', 'qb-vehiclekeys', 'qs-vehiclekeys', 'cd_garage', 'wasabi_carlock', 'jaksam', 'custom', 'none'
 Config.KeySystem = 'brutal_keys'
 
--- Grupo de permisos (ox_lib permission system / ACEs)
+-- Sistema de Permisos
+-- true: Usa SOLO permisos ACE (ej. 'add_ace group.moderator group.admin allow')
+-- false: Usa los rangos del framework (ESX: superadmin, QBCore: god, etc.)
+Config.UseAcePermissions = false
 Config.PermissionGroup = 'group.admin'
 
--- Nombre del comando
+-- Nombres de los comandos
 Config.CommandName = 'givecar'
+Config.DeleteCommandName = 'delcarplate'
 ```
 
 ## 🎮 Uso
 
-1. Ejecuta el comando configurado (por defecto `/givecar`).
-2. Se abrirá un menú donde podrás introducir:
+### Entregar Vehículo (`/givecar`)
+1. Ejecuta el comando `/givecar` (o el configurado).
+2. Rellena el menú:
    - **ID del Jugador**: El ID del servidor de quien recibirá el coche (déjalo vacío para dártelo a ti mismo).
    - **Modelo**: El nombre de spawn del vehículo (ej: `zentorno`, `adder`).
    - **Matrícula**: (Opcional) Una matrícula personalizada. Si se deja vacío, se generará una aleatoria.
 3. ¡Listo! El jugador recibirá el vehículo con llaves y guardado en su garaje.
+
+### Eliminar Vehículo (`/delcarplate`)
+1. Ejecuta el comando `/delcarplate`.
+2. Introduce la **matrícula exacta** del vehículo que quieres eliminar.
+3. El script buscará el vehículo en la base de datos (sin importar el dueño) y lo borrará permanentemente.
 
 ## 🤝 Créditos
 

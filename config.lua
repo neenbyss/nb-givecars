@@ -5,7 +5,11 @@ Config.Framework = 'auto'
 -- Sistema de llaves: 'brutal_keys', 'qb-vehiclekeys', 'qs-vehiclekeys', 'cd_garage', 'wasabi_carlock', 'jaksam', 'custom', 'none'
 Config.KeySystem = 'brutal_keys'
 
-Config.PermissionGroup = 'group.admin'
+-- Sistema de permisos
+-- Si UseAcePermissions es true, ignora los rangos de admin del framework y usa SOLO permisos ACE.
+-- Si es false, usa los rangos de admin del framework (ESX: admin/superadmin, QB: admin/god).
+Config.UseAcePermissions = false
+Config.PermissionGroup = 'group.admin' -- Ace permission (ej. 'command.givecar' o 'group.admin')
 
 Config.CommandName = 'givecar'
 Config.DeleteCommandName = 'delcarplate'

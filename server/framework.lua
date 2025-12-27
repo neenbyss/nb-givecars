@@ -42,6 +42,9 @@ if frameworkType == 'esx' then
     end
 
     function Framework.IsAdmin(source)
+        if Config.UseAcePermissions then
+            return IsPlayerAceAllowed(source, Config.PermissionGroup)
+        end
         local xPlayer = ESX.GetPlayerFromId(source)
         if not xPlayer then return false end
         local group = xPlayer.getGroup()
@@ -90,6 +93,9 @@ elseif frameworkType == 'qbcore' or frameworkType == 'qbox' then
     end
 
     function Framework.IsAdmin(source)
+        if Config.UseAcePermissions then
+            return IsPlayerAceAllowed(source, Config.PermissionGroup)
+        end
         return QBCore.Functions.HasPermission(source, 'admin') or QBCore.Functions.HasPermission(source, 'god')
     end
 else
