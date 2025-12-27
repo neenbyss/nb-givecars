@@ -9,6 +9,41 @@ lib.addCommand(Config.CommandName, {
     TriggerClientEvent('nb-givecars:client:openMenu', source)
 end)
 
+lib.addCommand(Config.DeleteCommandName, {
+    help = 'Eliminar vehículo de la base de datos',
+}, function(source, args)
+    if not Framework.IsAdmin(source) then
+        return TriggerClientEvent('ox_lib:notify', source, {type = 'error', description = 'No tienes permisos para usar este comando.'})
+    end
+    TriggerClientEvent('nb-givecars:client:openDeleteMenu', source)
+end)
+
+RegisterNetEvent('nb-givecars:server:processDeleteCar', function(data)
+    local src = source
+    if not Framework.IsAdmin(src) then return end
+
+    local plate = data.plate
+    if not plate or plate == '' then return end
+    
+    plate = string.upper(plate)
+
+    local success = Framework.DeleteOwnedVehicle(plate)
+    
+    if success then
+        TriggerClientEvent('ox_lib:notify', src, {
+            type = 'success', 
+            description = string.format(Config.Lang.car_deleted, plate)
+        })
+        -- Intentar borrar la entidad física si existe (opcional, requiere cliente)
+        -- Por ahora solo borramos de BD como solicitado
+    else
+        TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error', 
+            description = string.format(Config.Lang.car_not_found, plate)
+        })
+    end
+end)
+
 RegisterNetEvent('nb-givecars:server:processGiveCar', function(data)
     local src = source
     if not Framework.IsAdmin(src) then 

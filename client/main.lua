@@ -16,6 +16,18 @@ RegisterNetEvent('nb-givecars:client:openMenu', function()
     })
 end)
 
+RegisterNetEvent('nb-givecars:client:openDeleteMenu', function()
+    local input = lib.inputDialog(Config.Lang.delete_menu_title, {
+        {type = 'input', label = Config.Lang.plate_label, description = Config.Lang.plate_desc, required = true},
+    })
+ 
+    if not input then return end
+ 
+    TriggerServerEvent('nb-givecars:server:processDeleteCar', {
+        plate = input[1]
+    })
+end)
+
 RegisterNetEvent('nb-givecars:client:spawnVehicle', function(model, plate, giverSource)
     if not IsModelInCdimage(model) then 
         return lib.notify({type = 'error', description = 'Model invalid: ' .. model})

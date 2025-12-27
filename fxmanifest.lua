@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'Neenbyss Studio'
 description 'Script to give cars to players'
-version '1.0.1'
+version '1.2.0'
 
 shared_scripts {
     '@ox_lib/init.lua',

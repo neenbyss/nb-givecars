@@ -30,8 +30,8 @@ if frameworkType == 'esx' then
         return count > 0 
     end 
 
-    function Framework.DeleteOwnedVehicle(identifier, plate) 
-        local affected = MySQL.update.await('DELETE FROM owned_vehicles WHERE owner = ? AND plate = ?', {identifier, plate}) 
+    function Framework.DeleteOwnedVehicle(plate) 
+        local affected = MySQL.update.await('DELETE FROM owned_vehicles WHERE plate = ?', {plate}) 
         return affected > 0 
     end 
 
@@ -65,8 +65,8 @@ elseif frameworkType == 'qbcore' or frameworkType == 'qbox' then
         return count > 0
     end
 
-    function Framework.DeleteOwnedVehicle(identifier, plate)
-        local affected = MySQL.update.await('DELETE FROM player_vehicles WHERE citizenid = ? AND plate = ?', {identifier, plate})
+    function Framework.DeleteOwnedVehicle(plate)
+        local affected = MySQL.update.await('DELETE FROM player_vehicles WHERE plate = ?', {plate})
         return affected > 0
     end
 
