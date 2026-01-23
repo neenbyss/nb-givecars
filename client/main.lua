@@ -16,15 +16,29 @@ RegisterNetEvent('nb-givecars:client:openMenu', function()
     })
 end)
 
-local function ShowVehicleDeleteMenu()
-    TriggerServerEvent('nb-givecars:server:getVehicleList')
+local currentTargetId = nil
+
+local function ShowVehicleContextMenu(targetId)
+    currentTargetId = targetId or cache.serverId
+    TriggerServerEvent('nb-givecars:server:getVehicleList', currentTargetId)
 end
 
 RegisterNetEvent('nb-givecars:client:openDeleteMenu', function()
-    ShowVehicleDeleteMenu()
+    local input = lib.inputDialog(Config.Lang.delete_menu_title, {
+        {type = 'number', label = Config.Lang.player_id_label, description = Config.Lang.player_id_desc, default = cache.serverId, required = false},
+    })
+    
+    if not input then return end
+    
+    local playerId = input[1]
+    if not playerId or playerId == 0 then
+        playerId = cache.serverId
+    end
+    
+    ShowVehicleContextMenu(playerId)
 end)
 
-RegisterNetEvent('nb-givecars:client:receiveVehicleList', function(vehicles)
+RegisterNetEvent('nb-givecars:client:receiveVehicleList', function(vehicles, targetId)
     if not vehicles or #vehicles == 0 then
         lib.notify({
             type = 'error',
@@ -33,85 +47,81 @@ RegisterNetEvent('nb-givecars:client:receiveVehicleList', function(vehicles)
         return
     end
 
-    local options = {}
+    local menuOptions = {}
     for i = 1, #vehicles do
         local vehicle = vehicles[i]
-        table.insert(options, {
-            value = vehicle.plate,
-            label = string.format('%s - %s', vehicle.plate, vehicle.model),
-            description = string.format(Config.Lang.vehicle_info, vehicle.plate, vehicle.model)
+        table.insert(menuOptions, {
+            title = string.format('%s - %s', vehicle.plate, vehicle.model),
+            description = string.format(Config.Lang.vehicle_info, vehicle.plate, vehicle.model),
+            icon = 'trash',
+            onSelect = function()
+                local confirm = lib.alertDialog({
+                    header = Config.Lang.confirm_delete_title,
+                    content = string.format(Config.Lang.confirm_delete_message, vehicle.plate, vehicle.model),
+                    centered = true,
+                    cancel = true,
+                    labels = {
+                        confirm = 'Confirmar',
+                        cancel = 'Cancelar'
+                    }
+                })
+
+                if confirm and confirm ~= 'cancel' then
+                    TriggerServerEvent('nb-givecars:server:processDeleteCar', {
+                        plate = vehicle.plate,
+                        targetId = targetId
+                    })
+                else
+                    -- Si cancela, volver al menú
+                    ShowVehicleContextMenu(targetId)
+                end
+            end
         })
     end
 
-    local selected = lib.inputDialog(Config.Lang.delete_menu_title, {
-        {
-            type = 'select',
-            label = Config.Lang.select_vehicle,
-            description = Config.Lang.select_vehicle_desc,
-            options = options,
-            required = true
-        }
+    -- Agregar opción para cambiar de jugador
+    table.insert(menuOptions, {
+        title = Config.Lang.change_player,
+        description = Config.Lang.change_player_desc,
+        icon = 'user',
+        onSelect = function()
+            local input = lib.inputDialog(Config.Lang.delete_menu_title, {
+                {type = 'number', label = Config.Lang.player_id_label, description = Config.Lang.player_id_desc, default = targetId or cache.serverId, required = false},
+            })
+            
+            if input then
+                local playerId = input[1]
+                if not playerId or playerId == 0 then
+                    playerId = cache.serverId
+                end
+                ShowVehicleContextMenu(playerId)
+            end
+        end
     })
 
-    if not selected or not selected[1] then return end
+    lib.registerContext({
+        id = 'nb_givecars_delete_menu',
+        title = Config.Lang.delete_menu_title,
+        options = menuOptions
+    })
 
-    local plate = selected[1]
-    local vehicleInfo = nil
-    for i = 1, #vehicles do
-        if vehicles[i].plate == plate then
-            vehicleInfo = vehicles[i]
-            break
-        end
-    end
+    lib.showContext('nb_givecars_delete_menu')
+end)
 
-    if not vehicleInfo then return end
-
+RegisterNetEvent('nb-givecars:client:showContinueMenu', function(targetId)
     local confirm = lib.alertDialog({
-        header = Config.Lang.confirm_delete_title,
-        content = string.format(Config.Lang.confirm_delete_message, vehicleInfo.plate, vehicleInfo.model),
+        header = Config.Lang.continue_menu_title,
+        content = Config.Lang.continue_question,
         centered = true,
         cancel = true,
         labels = {
-            confirm = 'Confirmar',
-            cancel = 'Cancelar'
+            confirm = Config.Lang.continue_deleting,
+            cancel = Config.Lang.exit_menu
         }
     })
 
     if confirm and confirm ~= 'cancel' then
-        TriggerServerEvent('nb-givecars:server:processDeleteCar', {
-            plate = plate
-        })
-    end
-end)
-
-RegisterNetEvent('nb-givecars:client:showContinueMenu', function()
-    local continueOptions = {
-        {
-            value = 'continue',
-            label = Config.Lang.continue_deleting,
-            description = Config.Lang.continue_deleting_desc
-        },
-        {
-            value = 'exit',
-            label = Config.Lang.exit_menu,
-            description = Config.Lang.exit_menu_desc
-        }
-    }
-
-    local selected = lib.inputDialog(Config.Lang.continue_menu_title, {
-        {
-            type = 'select',
-            label = Config.Lang.what_to_do,
-            description = Config.Lang.what_to_do_desc,
-            options = continueOptions,
-            required = true
-        }
-    })
-
-    if not selected or not selected[1] then return end
-
-    if selected[1] == 'continue' then
-        ShowVehicleDeleteMenu()
+        ShowVehicleContextMenu(targetId)
     end
 end)
 

@@ -18,12 +18,27 @@ lib.addCommand(Config.DeleteCommandName, {
     TriggerClientEvent('nb-givecars:client:openDeleteMenu', source)
 end)
 
-RegisterNetEvent('nb-givecars:server:getVehicleList', function()
+RegisterNetEvent('nb-givecars:server:getVehicleList', function(targetId)
     local src = source
     if not Framework.IsAdmin(src) then return end
     
-    local vehicles = Framework.GetAllVehicles()
-    TriggerClientEvent('nb-givecars:client:receiveVehicleList', src, vehicles)
+    local identifier = nil
+    local target = src -- Por defecto, el usuario mismo
+    
+    if targetId then
+        target = tonumber(targetId)
+        if not target then target = src end
+    end
+    
+    local Player = Framework.GetPlayerFromId(target)
+    if not Player then
+        return TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = Config.Lang.player_not_found})
+    end
+    
+    identifier = Framework.GetPlayerIdentifier(target)
+    
+    local vehicles = Framework.GetAllVehicles(identifier)
+    TriggerClientEvent('nb-givecars:client:receiveVehicleList', src, vehicles, targetId or src)
 end)
 
 RegisterNetEvent('nb-givecars:server:processDeleteCar', function(data)
@@ -37,20 +52,22 @@ RegisterNetEvent('nb-givecars:server:processDeleteCar', function(data)
 
     local success = Framework.DeleteOwnedVehicle(plate)
     
+    local targetId = data.targetId
+    
     if success then
         TriggerClientEvent('ox_lib:notify', src, {
             type = 'success', 
             description = string.format(Config.Lang.car_deleted, plate)
         })
         -- Enviar evento para mostrar menú de continuar
-        TriggerClientEvent('nb-givecars:client:showContinueMenu', src)
+        TriggerClientEvent('nb-givecars:client:showContinueMenu', src, targetId)
     else
         TriggerClientEvent('ox_lib:notify', src, {
             type = 'error', 
             description = string.format(Config.Lang.car_not_found, plate)
         })
         -- Si falla, también mostrar opción de continuar
-        TriggerClientEvent('nb-givecars:client:showContinueMenu', src)
+        TriggerClientEvent('nb-givecars:client:showContinueMenu', src, targetId)
     end
 end)
 

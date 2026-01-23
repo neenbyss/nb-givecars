@@ -12,7 +12,7 @@ Config.UseAcePermissions = false
 Config.PermissionGroup = 'group.admin' -- Ace permission (ej. 'command.givecar' o 'group.admin')
 
 Config.CommandName = 'givecar'
-Config.DeleteCommandName = 'delcarplate'
+Config.DeleteCommandName = 'delcar'
 
 Config.Lang = {
     received_car = 'Has recibido un vehículo: %s',
@@ -23,6 +23,8 @@ Config.Lang = {
     car_deleted = 'Vehículo con matrícula %s eliminado correctamente de la base de datos',
     car_not_found = 'No se encontró ningún vehículo con la matrícula %s en la base de datos',
     delete_menu_title = 'Eliminar Vehículo de la BD',
+    player_id_label = 'ID del Jugador',
+    player_id_desc = 'ID del servidor (Dejar vacío para ti mismo)',
     plate_label = 'Matrícula',
     plate_desc = 'Introduce la matrícula exacta del vehículo a eliminar',
     select_vehicle = 'Seleccionar Vehículo',
@@ -37,7 +39,10 @@ Config.Lang = {
     exit_menu = 'Salir',
     exit_menu_desc = 'Finalizar y cerrar el menú de eliminación',
     what_to_do = '¿Qué deseas hacer?',
-    what_to_do_desc = 'Elige una opción para continuar'
+    what_to_do_desc = 'Elige una opción para continuar',
+    continue_question = '¿Deseas eliminar otro vehículo?',
+    change_player = 'Cambiar Jugador',
+    change_player_desc = 'Seleccionar otro jugador para ver sus vehículos'
 }
 
 Config.PlateFormat = 'NNN LLL'

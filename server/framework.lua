@@ -35,8 +35,13 @@ if frameworkType == 'esx' then
         return affected > 0 
     end
 
-    function Framework.GetAllVehicles()
-        local vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles ORDER BY plate ASC')
+    function Framework.GetAllVehicles(identifier)
+        local vehicles
+        if identifier then
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles WHERE owner = ? ORDER BY plate ASC', {identifier})
+        else
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles ORDER BY plate ASC')
+        end
         local result = {}
         if vehicles then
             for i = 1, #vehicles do
@@ -89,8 +94,13 @@ elseif frameworkType == 'qbcore' or frameworkType == 'qbox' then
         return affected > 0
     end
 
-    function Framework.GetAllVehicles()
-        local vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles ORDER BY plate ASC')
+    function Framework.GetAllVehicles(identifier)
+        local vehicles
+        if identifier then
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles WHERE citizenid = ? ORDER BY plate ASC', {identifier})
+        else
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles ORDER BY plate ASC')
+        end
         local result = {}
         if vehicles then
             for i = 1, #vehicles do
@@ -135,9 +145,14 @@ else
         return IsPlayerAceAllowed(source, Config.PermissionGroup) or IsPlayerAceAllowed(source, 'command')
     end
 
-    function Framework.GetAllVehicles()
+    function Framework.GetAllVehicles(identifier)
         -- Try ESX table first
-        local vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles ORDER BY plate ASC')
+        local vehicles
+        if identifier then
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles WHERE owner = ? ORDER BY plate ASC', {identifier})
+        else
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles ORDER BY plate ASC')
+        end
         if vehicles and #vehicles > 0 then
             local result = {}
             for i = 1, #vehicles do
@@ -151,7 +166,11 @@ else
             return result
         end
         -- Try QBCore table
-        vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles ORDER BY plate ASC')
+        if identifier then
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles WHERE citizenid = ? ORDER BY plate ASC', {identifier})
+        else
+            vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles ORDER BY plate ASC')
+        end
         local result = {}
         if vehicles then
             for i = 1, #vehicles do
