@@ -33,6 +33,22 @@ if frameworkType == 'esx' then
     function Framework.DeleteOwnedVehicle(plate) 
         local affected = MySQL.update.await('DELETE FROM owned_vehicles WHERE plate = ?', {plate}) 
         return affected > 0 
+    end
+
+    function Framework.GetAllVehicles()
+        local vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles ORDER BY plate ASC')
+        local result = {}
+        if vehicles then
+            for i = 1, #vehicles do
+                local vehicleData = json.decode(vehicles[i].vehicle or '{}')
+                local model = vehicleData.model or 'unknown'
+                table.insert(result, {
+                    plate = vehicles[i].plate,
+                    model = model
+                })
+            end
+        end
+        return result
     end 
 
     function Framework.InsertOwnedVehicle(identifier, plate, vehiclePropsJson, type, model, source) 
@@ -73,6 +89,21 @@ elseif frameworkType == 'qbcore' or frameworkType == 'qbox' then
         return affected > 0
     end
 
+    function Framework.GetAllVehicles()
+        local vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles ORDER BY plate ASC')
+        local result = {}
+        if vehicles then
+            for i = 1, #vehicles do
+                local model = vehicles[i].vehicle or 'unknown'
+                table.insert(result, {
+                    plate = vehicles[i].plate,
+                    model = model
+                })
+            end
+        end
+        return result
+    end
+
     function Framework.InsertOwnedVehicle(identifier, plate, vehiclePropsJson, type, model, source)
         local license = 'unknown'
         if source then
@@ -102,6 +133,36 @@ else
     -- Fallback for standalone
     function Framework.IsAdmin(source)
         return IsPlayerAceAllowed(source, Config.PermissionGroup) or IsPlayerAceAllowed(source, 'command')
+    end
+
+    function Framework.GetAllVehicles()
+        -- Try ESX table first
+        local vehicles = MySQL.query.await('SELECT plate, vehicle FROM owned_vehicles ORDER BY plate ASC')
+        if vehicles and #vehicles > 0 then
+            local result = {}
+            for i = 1, #vehicles do
+                local vehicleData = json.decode(vehicles[i].vehicle or '{}')
+                local model = vehicleData.model or 'unknown'
+                table.insert(result, {
+                    plate = vehicles[i].plate,
+                    model = model
+                })
+            end
+            return result
+        end
+        -- Try QBCore table
+        vehicles = MySQL.query.await('SELECT plate, vehicle FROM player_vehicles ORDER BY plate ASC')
+        local result = {}
+        if vehicles then
+            for i = 1, #vehicles do
+                local model = vehicles[i].vehicle or 'unknown'
+                table.insert(result, {
+                    plate = vehicles[i].plate,
+                    model = model
+                })
+            end
+        end
+        return result
     end
 end
 

@@ -24,7 +24,20 @@ Config.Lang = {
     car_not_found = 'No se encontró ningún vehículo con la matrícula %s en la base de datos',
     delete_menu_title = 'Eliminar Vehículo de la BD',
     plate_label = 'Matrícula',
-    plate_desc = 'Introduce la matrícula exacta del vehículo a eliminar'
+    plate_desc = 'Introduce la matrícula exacta del vehículo a eliminar',
+    select_vehicle = 'Seleccionar Vehículo',
+    select_vehicle_desc = 'Elige el vehículo que deseas eliminar',
+    vehicle_info = 'Matrícula: %s | Modelo: %s',
+    confirm_delete_title = 'Confirmar Eliminación',
+    confirm_delete_message = '¿Estás seguro de que deseas eliminar el vehículo?\n\nMatrícula: %s\nModelo: %s\n\nEsta acción no se puede deshacer.',
+    no_vehicles_found = 'No se encontraron vehículos en la base de datos',
+    continue_menu_title = 'Eliminación Completada',
+    continue_deleting = 'Eliminar Otro Vehículo',
+    continue_deleting_desc = 'Volver a la lista de vehículos para eliminar otro',
+    exit_menu = 'Salir',
+    exit_menu_desc = 'Finalizar y cerrar el menú de eliminación',
+    what_to_do = '¿Qué deseas hacer?',
+    what_to_do_desc = 'Elige una opción para continuar'
 }
 
 Config.PlateFormat = 'NNN LLL'

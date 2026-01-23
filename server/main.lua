@@ -18,6 +18,14 @@ lib.addCommand(Config.DeleteCommandName, {
     TriggerClientEvent('nb-givecars:client:openDeleteMenu', source)
 end)
 
+RegisterNetEvent('nb-givecars:server:getVehicleList', function()
+    local src = source
+    if not Framework.IsAdmin(src) then return end
+    
+    local vehicles = Framework.GetAllVehicles()
+    TriggerClientEvent('nb-givecars:client:receiveVehicleList', src, vehicles)
+end)
+
 RegisterNetEvent('nb-givecars:server:processDeleteCar', function(data)
     local src = source
     if not Framework.IsAdmin(src) then return end
@@ -34,13 +42,15 @@ RegisterNetEvent('nb-givecars:server:processDeleteCar', function(data)
             type = 'success', 
             description = string.format(Config.Lang.car_deleted, plate)
         })
-        -- Intentar borrar la entidad física si existe (opcional, requiere cliente)
-        -- Por ahora solo borramos de BD como solicitado
+        -- Enviar evento para mostrar menú de continuar
+        TriggerClientEvent('nb-givecars:client:showContinueMenu', src)
     else
         TriggerClientEvent('ox_lib:notify', src, {
             type = 'error', 
             description = string.format(Config.Lang.car_not_found, plate)
         })
+        -- Si falla, también mostrar opción de continuar
+        TriggerClientEvent('nb-givecars:client:showContinueMenu', src)
     end
 end)
 

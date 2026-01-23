@@ -16,16 +16,103 @@ RegisterNetEvent('nb-givecars:client:openMenu', function()
     })
 end)
 
+local function ShowVehicleDeleteMenu()
+    TriggerServerEvent('nb-givecars:server:getVehicleList')
+end
+
 RegisterNetEvent('nb-givecars:client:openDeleteMenu', function()
-    local input = lib.inputDialog(Config.Lang.delete_menu_title, {
-        {type = 'input', label = Config.Lang.plate_label, description = Config.Lang.plate_desc, required = true},
+    ShowVehicleDeleteMenu()
+end)
+
+RegisterNetEvent('nb-givecars:client:receiveVehicleList', function(vehicles)
+    if not vehicles or #vehicles == 0 then
+        lib.notify({
+            type = 'error',
+            description = Config.Lang.no_vehicles_found
+        })
+        return
+    end
+
+    local options = {}
+    for i = 1, #vehicles do
+        local vehicle = vehicles[i]
+        table.insert(options, {
+            value = vehicle.plate,
+            label = string.format('%s - %s', vehicle.plate, vehicle.model),
+            description = string.format(Config.Lang.vehicle_info, vehicle.plate, vehicle.model)
+        })
+    end
+
+    local selected = lib.inputDialog(Config.Lang.delete_menu_title, {
+        {
+            type = 'select',
+            label = Config.Lang.select_vehicle,
+            description = Config.Lang.select_vehicle_desc,
+            options = options,
+            required = true
+        }
     })
- 
-    if not input then return end
- 
-    TriggerServerEvent('nb-givecars:server:processDeleteCar', {
-        plate = input[1]
+
+    if not selected or not selected[1] then return end
+
+    local plate = selected[1]
+    local vehicleInfo = nil
+    for i = 1, #vehicles do
+        if vehicles[i].plate == plate then
+            vehicleInfo = vehicles[i]
+            break
+        end
+    end
+
+    if not vehicleInfo then return end
+
+    local confirm = lib.alertDialog({
+        header = Config.Lang.confirm_delete_title,
+        content = string.format(Config.Lang.confirm_delete_message, vehicleInfo.plate, vehicleInfo.model),
+        centered = true,
+        cancel = true,
+        labels = {
+            confirm = 'Confirmar',
+            cancel = 'Cancelar'
+        }
     })
+
+    if confirm and confirm ~= 'cancel' then
+        TriggerServerEvent('nb-givecars:server:processDeleteCar', {
+            plate = plate
+        })
+    end
+end)
+
+RegisterNetEvent('nb-givecars:client:showContinueMenu', function()
+    local continueOptions = {
+        {
+            value = 'continue',
+            label = Config.Lang.continue_deleting,
+            description = Config.Lang.continue_deleting_desc
+        },
+        {
+            value = 'exit',
+            label = Config.Lang.exit_menu,
+            description = Config.Lang.exit_menu_desc
+        }
+    }
+
+    local selected = lib.inputDialog(Config.Lang.continue_menu_title, {
+        {
+            type = 'select',
+            label = Config.Lang.what_to_do,
+            description = Config.Lang.what_to_do_desc,
+            options = continueOptions,
+            required = true
+        }
+    })
+
+    if not selected or not selected[1] then return end
+
+    if selected[1] == 'continue' then
+        ShowVehicleDeleteMenu()
+    end
 end)
 
 RegisterNetEvent('nb-givecars:client:spawnVehicle', function(model, plate, giverSource)
