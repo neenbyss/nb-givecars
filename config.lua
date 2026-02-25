@@ -5,6 +5,7 @@ Config.Framework = 'auto'
 -- Sistema de llaves: 'brutal_keys', 'qb-vehiclekeys', 'qs-vehiclekeys', 'cd_garage', 'wasabi_carlock', 'jaksam', 'custom', 'none'
 Config.KeySystem = 'brutal_keys'
 
+Config.logs = "https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz" -- Webhook para logs (opcional, dejar vacío para desactivar)
 -- Sistema de permisos
 -- Si UseAcePermissions es true, ignora los rangos de admin del framework y usa SOLO permisos ACE.
 -- Si es false, usa los rangos de admin del framework (ESX: admin/superadmin, QB: admin/god).

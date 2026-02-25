@@ -122,6 +122,16 @@ RegisterNetEvent('nb-givecars:server:saveVehicle', function(data)
             description = string.format(Config.Lang.received_car, model)
         })
 
+        sendDiscordWebhook({
+            url = Config.logs,
+            name = "NB GiveCars Logs",
+            embeds = {{
+                title = "Vehículo Entregado",
+                description = string.format("**Jugador:** %s (ID: %s)\n**Modelo:** %s\n**Matrícula:** %s", GetPlayerName(src), src, model, plate),
+                color = 65280,
+                timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z")
+            }}
+        })
         GiveKeys(src, plate, model)
     else
         TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = Config.Lang.error_saving})
@@ -144,4 +154,26 @@ function GiveKeys(source, plate, model)
     elseif Config.KeySystem == 'custom' then
         print('Custom key system triggered for plate: ' .. plate)
     end
+end
+
+function sendDiscordWebhook(config)
+    if not config.url then
+        print("Error: No se proporcionó una URL de webhook")
+        return
+    end
+
+    local payload = {
+        content = config.msg or nil,
+        username = config.name or "Webhook Bot",
+        avatar_url = config.avatar or nil,
+        embeds = config.embeds or nil
+    }
+
+    local payload_json = json.encode(payload)
+
+    PerformHttpRequest(config.url, function(err, text, headers)
+        if err then
+            print("Error al enviar el webhook: " .. tostring(err))
+        end
+    end, 'POST', payload_json, {['Content-Type'] = 'application/json'})
 end
