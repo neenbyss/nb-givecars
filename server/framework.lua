@@ -28,6 +28,11 @@ if frameworkType == 'esx' then
     function Framework.PlayerOwnsPlate(identifier, plate) 
         local count = MySQL.scalar.await('SELECT count(*) FROM owned_vehicles WHERE owner = ? AND plate = ?', {identifier, plate}) 
         return count > 0 
+    end
+
+    function Framework.PlateExistsInDb(plate)
+        local count = MySQL.scalar.await('SELECT count(*) FROM owned_vehicles WHERE plate = ?', {plate})
+        return count and count > 0
     end 
 
     function Framework.DeleteOwnedVehicle(plate) 
@@ -89,6 +94,11 @@ elseif frameworkType == 'qbcore' or frameworkType == 'qbox' then
         return count > 0
     end
 
+    function Framework.PlateExistsInDb(plate)
+        local count = MySQL.scalar.await('SELECT count(*) FROM player_vehicles WHERE plate = ?', {plate})
+        return count and count > 0
+    end
+
     function Framework.DeleteOwnedVehicle(plate)
         local affected = MySQL.update.await('DELETE FROM player_vehicles WHERE plate = ?', {plate})
         return affected > 0
@@ -143,6 +153,13 @@ else
     -- Fallback for standalone
     function Framework.IsAdmin(source)
         return IsPlayerAceAllowed(source, Config.PermissionGroup) or IsPlayerAceAllowed(source, 'command')
+    end
+
+    function Framework.PlateExistsInDb(plate)
+        local count = MySQL.scalar.await('SELECT count(*) FROM owned_vehicles WHERE plate = ?', {plate})
+        if count and count > 0 then return true end
+        count = MySQL.scalar.await('SELECT count(*) FROM player_vehicles WHERE plate = ?', {plate})
+        return count and count > 0
     end
 
     function Framework.GetAllVehicles(identifier)

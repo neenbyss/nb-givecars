@@ -18,6 +18,15 @@ lib.addCommand(Config.DeleteCommandName, {
     TriggerClientEvent('nb-givecars:client:openDeleteMenu', source)
 end)
 
+lib.addCommand(Config.AdminCarCommandName, {
+    help = 'Registrar el vehículo actual como propio (o asignar a un jugador). Debes estar dentro del vehículo.',
+}, function(source, args)
+    if not Framework.IsAdmin(source) then
+        return TriggerClientEvent('ox_lib:notify', source, {type = 'error', description = 'No tienes permisos para usar este comando.'})
+    end
+    TriggerClientEvent('nb-givecars:client:openAdminCarMenu', source)
+end)
+
 RegisterNetEvent('nb-givecars:server:getVehicleList', function(targetId)
     local src = source
     if not Framework.IsAdmin(src) then return end
@@ -68,6 +77,67 @@ RegisterNetEvent('nb-givecars:server:processDeleteCar', function(data)
         })
         -- Si falla, también mostrar opción de continuar
         TriggerClientEvent('nb-givecars:client:showContinueMenu', src, targetId)
+    end
+end)
+
+RegisterNetEvent('nb-givecars:server:processAdminCar', function(data)
+    local src = source
+    if not Framework.IsAdmin(src) then return end
+
+    local plate = data.plate
+    local model = data.model
+    local vehiclePropsJson = type(data.props) == 'string' and data.props or json.encode(data.props or {})
+    local targetId = data.targetId
+
+    if not plate or plate == '' then
+        return TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = Config.Lang.admincar_error_saving})
+    end
+
+    plate = string.upper(plate)
+
+    local force = data.force == true
+    if Framework.PlateExistsInDb(plate) and not force then
+        return TriggerClientEvent('nb-givecars:client:adminCarConfirmForce', src, {
+            plate = plate,
+            model = model,
+            props = data.props,
+            targetId = targetId
+        })
+    end
+
+    if force and Framework.PlateExistsInDb(plate) then
+        Framework.DeleteOwnedVehicle(plate)
+    end
+
+    local target = (targetId and tonumber(targetId) and tonumber(targetId) > 0) and tonumber(targetId) or src
+    local Player = Framework.GetPlayerFromId(target)
+    if not Player then
+        return TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = Config.Lang.player_not_found})
+    end
+
+    local identifier = Framework.GetPlayerIdentifier(target)
+    local type = 'car'
+    local success = Framework.InsertOwnedVehicle(identifier, plate, vehiclePropsJson, type, model, target)
+
+    if success then
+        if target == src then
+            TriggerClientEvent('ox_lib:notify', src, {
+                type = 'success',
+                description = string.format(Config.Lang.admincar_success_self, plate)
+            })
+        else
+            TriggerClientEvent('ox_lib:notify', src, {
+                type = 'success',
+                description = string.format(Config.Lang.admincar_success_target, plate, target)
+            })
+            TriggerClientEvent('ox_lib:notify', target, {
+                type = 'success',
+                description = string.format(Config.Lang.received_car, model or plate)
+            })
+        end
+        GiveKeys(target, plate, model)
+    else
+        TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = Config.Lang.admincar_error_saving})
     end
 end)
 

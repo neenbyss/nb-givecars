@@ -23,6 +23,61 @@ local function ShowVehicleContextMenu(targetId)
     TriggerServerEvent('nb-givecars:server:getVehicleList', currentTargetId)
 end
 
+RegisterNetEvent('nb-givecars:client:openAdminCarMenu', function()
+    local vehicle = GetVehiclePedIsIn(cache.ped, false)
+    if not vehicle or vehicle == 0 then
+        return lib.notify({ type = 'error', description = Config.Lang.admincar_not_in_vehicle })
+    end
+
+    local plate = GetVehicleNumberPlateText(vehicle)
+    if plate then plate = string.gsub(plate, '%s+', '') end
+    local props = Framework.GetVehicleProperties(vehicle)
+    if not props then props = {} end
+    props.plate = plate
+    local modelHash = GetEntityModel(vehicle)
+    local model = (props.model and type(props.model) == 'string') and props.model or GetDisplayNameFromVehicleModel(modelHash)
+    if model then model = string.lower(model) end
+
+    local input = lib.inputDialog(Config.Lang.admincar_menu_title, {
+        { type = 'number', label = Config.Lang.admincar_player_id_label, description = Config.Lang.admincar_player_id_desc, required = false },
+    })
+
+    if not input then return end
+
+    local targetId = input[1]
+    if targetId and targetId == 0 then targetId = nil end
+
+    TriggerServerEvent('nb-givecars:server:processAdminCar', {
+        plate = plate,
+        model = model,
+        props = props,
+        targetId = targetId and tostring(targetId) or nil
+    })
+end)
+
+RegisterNetEvent('nb-givecars:client:adminCarConfirmForce', function(data)
+    if not data or not data.plate then return end
+    local confirm = lib.alertDialog({
+        header = Config.Lang.admincar_force_confirm_title,
+        content = string.format(Config.Lang.admincar_force_confirm_message, data.plate),
+        centered = true,
+        cancel = true,
+        labels = {
+            confirm = Config.Lang.admincar_force_confirm_yes,
+            cancel = Config.Lang.admincar_force_confirm_no
+        }
+    })
+    if confirm and confirm ~= 'cancel' then
+        TriggerServerEvent('nb-givecars:server:processAdminCar', {
+            plate = data.plate,
+            model = data.model,
+            props = data.props,
+            targetId = data.targetId,
+            force = true
+        })
+    end
+end)
+
 RegisterNetEvent('nb-givecars:client:openDeleteMenu', function()
     local input = lib.inputDialog(Config.Lang.delete_menu_title, {
         {type = 'number', label = Config.Lang.player_id_label, description = Config.Lang.player_id_desc, default = cache.serverId, required = false},

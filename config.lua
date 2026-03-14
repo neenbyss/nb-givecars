@@ -14,6 +14,7 @@ Config.PermissionGroup = 'group.admin' -- Ace permission (ej. 'command.givecar' 
 
 Config.CommandName = 'givecar'
 Config.DeleteCommandName = 'delcar'
+Config.AdminCarCommandName = 'owncar'
 
 Config.Lang = {
     received_car = 'Has recibido un vehículo: %s',
@@ -43,7 +44,21 @@ Config.Lang = {
     what_to_do_desc = 'Elige una opción para continuar',
     continue_question = '¿Deseas eliminar otro vehículo?',
     change_player = 'Cambiar Jugador',
-    change_player_desc = 'Seleccionar otro jugador para ver sus vehículos'
+    change_player_desc = 'Seleccionar otro jugador para ver sus vehículos',
+
+    -- AdminCar: registrar vehículo actual como propio o asignar a un jugador
+    admincar_menu_title = 'Registrar vehículo como propio',
+    admincar_player_id_label = 'ID del Jugador',
+    admincar_player_id_desc = 'Dejar vacío para ser tú el dueño, o escribe el ID del jugador a quien asignar',
+    admincar_not_in_vehicle = 'Debes estar dentro de un vehículo para usar este comando',
+    admincar_already_in_db = 'Este vehículo (matrícula %s) ya está registrado en la base de datos',
+    admincar_force_confirm_title = 'Vehículo ya registrado',
+    admincar_force_confirm_message = 'La matrícula %s pertenece a otro jugador. ¿Forzar y asignar este vehículo al nuevo dueño? (Se quitará del dueño actual)',
+    admincar_force_confirm_yes = 'Forzar y asignar',
+    admincar_force_confirm_no = 'Cancelar',
+    admincar_success_self = 'Vehículo con matrícula %s registrado a tu nombre correctamente',
+    admincar_success_target = 'Vehículo con matrícula %s asignado al jugador ID %s correctamente',
+    admincar_error_saving = 'Error al registrar el vehículo en la base de datos',
 }
 
 Config.PlateFormat = 'NNN LLL'
